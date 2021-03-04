@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Meals</title>
+
+    <!-- Bootstrap -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+    <div>
+
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h1 id='serviceProviderName'></h1>
+                                <h3>Meals</h3>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">Meal Name <small>&nbsp;&nbsp;&nbsp;(&nbsp; Click on meal to order &nbsp;)</small></th>
+                                    <th scope="col">Price <small>&nbsp;&nbsp;&nbsp;(NGN)</small></th>
+                                    <th scope="col">Time to Prepare <small>&nbsp;&nbsp;&nbsp;(min)</small></th>
+                                </tr>
+                            </thead>
+                            <tbody id='meals'>
+                                
+                            </tbody>
+                        </table>
+                        
+                    </li>
+                </ul>
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script>
+
+        // Get it from the local storage
+        const serviceProviderId = localStorage.getItem('serviceProviderId');
+        const serviceProviderName = localStorage.getItem('serviceProviderName');
+
+        const serviceProviderNameDiv = document.getElementById("serviceProviderName");
+        serviceProviderNameDiv.innerHTML = serviceProviderName + " Restaurant";
+
+        window.mealsDiv = document.getElementById("meals");
+        const url = 'http://restaurants.loc/api/v1/serviceProviders/' + serviceProviderId + '/meals';
+
+        const buttonPrimary = "btn btn-primary btn-lg btn-block";
+
+        function processOrder(event) {
+            // Store it in the local storage
+            localStorage.setItem('mealId', event.target.id);
+            localStorage.setItem('mealName', event.target.innerHTML);
+            localStorage.setItem('mealPrice', event.target.dataset.price);
+            localStorage.setItem('mealTime', event.target.dataset.time);
+
+            window.location.assign('./order-details.html');
+        }
+
+        function insertInnerHtml(parent, el) {
+            return parent.innerHTML = parent.innerHTML + el;
+        }
+
+        function fetchApi(url, parentElement, postData) {
+            fetch(url, postData)
+                .then((resp) => resp.json())
+                .then(function (result) {
+                    let meals = result.data;
+                    parentElement.innerHTML = '';
+                    return meals.map(function (meal) {
+                        let tr = "<tr><td><button data-price='"+meal.price+"' data-time='"
+                        + meal.preparation_time_in_minute+"' class='"+ buttonPrimary+"' id='"
+                        + meal.id+"' onclick='processOrder(event)'>"+ meal.name+"</button> </td>"+
+                        "<td>"+meal.price+" (NGN) </td>"+
+                        "<td>"+meal.preparation_time_in_minute+" minutes </td><tr>";
+                        
+                        insertInnerHtml(parentElement, tr);
+                    })
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        }
+
+        fetchApi(url, window.mealsDiv, {});
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Restaurants</title>
+
+    <!-- Bootstrap -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    
+    <div>
+
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8">
+                <ul class="list-group">
+                    <li class="list-group-item"><h1>Categories</h1></li>
+                    <li class="list-group-item">
+                        <div id='categories'>
+                           
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script>
+        const categoriesDiv = document.getElementById("categories");
+        const url = 'http://restaurants.loc/api/v1/categories';
+
+        const buttonPrimary = "btn btn-primary btn-lg btn-block";
+        const buttonDark = "btn btn-Dark btn-lg btn-block";
+
+        function processCategory(event){
+            // Store id and name in the local storage
+            localStorage.setItem('categoryId', event.target.id);
+            localStorage.setItem('categoryName', event.target.innerHTML);
+
+            window.location.assign('./service-providers.html');
+        }
+
+        function createNode(element) {
+            return document.createElement(element);
+        }
+        function append(parent, el) {
+            return parent.appendChild(el);
+        }
+        fetch(url)
+            .then((resp) => resp.json())
+            .then(function (result) {
+                let categories = result.data;
+                return categories.map(function (category) {
+                    console.log(category);
+                    let button = createNode('button');
+                    if(category.availability === 1){
+                        button.setAttribute('class', buttonPrimary)
+                        button.setAttribute('onclick', "processCategory(event)")
+                    }else{
+                        button.setAttribute('class', buttonDark)
+                    }
+                    button.setAttribute('id', category.id);
+                    button.innerHTML = category.name
+
+                    append(categoriesDiv, button);
+                })
+            })
+            .catch(function (error) {
+                console.log(error);
+        });
+
+    </script>
+</body>
+
+</html>
